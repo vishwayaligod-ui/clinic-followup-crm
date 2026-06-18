@@ -10,11 +10,8 @@ export default function NewVisitPage() {
   const router = useRouter();
 
   const mobile = Array.isArray(params.id)
-  ? params.id[0]
-  : params.id;
-
-console.log("Params =", params);
-console.log("Mobile =", mobile);
+    ? params.id[0]
+    : params.id;
 
   const [loading, setLoading] = useState(true);
 
@@ -28,94 +25,96 @@ console.log("Mobile =", mobile);
   });
 
   useEffect(() => {
-  if (mobile) {
-    loadPatient();
-  }
-}, [mobile]);
+    if (mobile) {
+      loadPatient();
+    }
+  }, [mobile]);
 
   const loadPatient = async () => {
-  console.log("Searching Mobile =", mobile);
+    const { data, error } = await supabase
+      .from("patient_followups")
+      .select("*")
+      .eq("mobile_number", mobile)
+      .order("created_at", { ascending: false })
+      .limit(1);
 
-  const { data, error } = await supabase
-    .from("patient_followups")
-    .select("*")
-    .eq("mobile_number", mobile);
+    if (error) {
+      alert(JSON.stringify(error));
+      setLoading(false);
+      return;
+    }
 
-  console.log("Data =", data);
-  console.log("Error =", error);
+    if (!data || data.length === 0) {
+      alert("No patient found");
+      setLoading(false);
+      return;
+    }
 
-  console.log("Data =", data);
-console.log("Error =", error);
+    const latestVisit = data[0];
 
-if (error) {
-  alert(JSON.stringify(error));
-  setLoading(false);
-  return;
-}
-
-if (!data || data.length === 0) {
-  alert("No patient found");
-  setLoading(false);
-  return;
-}
-
-
-
-setPatientName(data[0].patient_name);
-setLoading(false);
-};
+    setPatientName(latestVisit.patient_name);
+    setLoading(false);
+  };
 
   const handleSave = async () => {
-  const today = new Date()
-    .toISOString()
-    .split("T")[0];
+    const today = new Date()
+      .toISOString()
+      .split("T")[0];
 
-  if (!form.followup_date) {
-    alert("Please select Next Followup Date");
-    return;
+    if (!form.followup_date) {
+      alert("Please select Next Followup Date");
+      return;
+    }
+
+    if (form.followup_date < today) {
+      alert("Follow-up date cannot be in the past");
+      return;
+    }
+
+    await supabase
+      .from("patient_followups")
+      .update({
+        followup_done: true,
+        status: "Completed",
+      })
+      .eq("mobile_number", mobile)
+      .eq("followup_done", false)
+      .eq("followup_date", today);
+
+    const { error } = await supabase
+      .from("patient_followups")
+      .insert([
+        {
+          patient_name: patientName,
+          mobile_number: mobile,
+          diagnosis: form.diagnosis,
+          prescription: form.prescription,
+          followup_date: form.followup_date,
+          notes: form.notes,
+          visit_date: today,
+          followup_done: false,
+          status: "Pending",
+        },
+      ]);
+
+    if (error) {
+      console.error(error);
+      alert(JSON.stringify(error));
+      return;
+    }
+
+    alert("New visit added successfully");
+
+    router.push(`/patients/${mobile}`);
+  };
+
+  if (loading) {
+    return (
+      <main className="max-w-lg mx-auto p-4">
+        Loading...
+      </main>
+    );
   }
-
-  if (form.followup_date < today) {
-    alert("Follow-up date cannot be in the past");
-    return;
-  }
-
-  await supabase
-    .from("patient_followups")
-    .update({
-      followup_done: true,
-      status: "Completed",
-    })
-    .eq("mobile_number", mobile)
-    .eq("followup_done", false)
-    .eq("followup_date", today);
-
-  const { error } = await supabase
-    .from("patient_followups")
-    .insert([
-      {
-        patient_name: patientName,
-        mobile_number: mobile,
-        diagnosis: form.diagnosis,
-        prescription: form.prescription,
-        followup_date: form.followup_date,
-        notes: form.notes,
-        visit_date: today,
-        followup_done: false,
-        status: "Pending",
-      },
-    ]);
-
-  if (error) {
-    console.error(error);
-    alert(JSON.stringify(error));
-    return;
-  }
-
-  alert("New visit added successfully");
-
-  router.push(`/patients/${mobile}`);
-};
 
   return (
     <main className="max-w-lg mx-auto min-h-screen bg-gray-50 p-4">

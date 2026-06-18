@@ -5,93 +5,123 @@ import { supabase } from "../../lib/supabase";
 import Link from "next/link";
 
 export default function NewPatientPage() {
+  const [saving, setSaving] = useState(false);
+
   const [form, setForm] = useState({
     patient_name: "",
     mobile_number: "",
     diagnosis: "",
     prescription: "",
-   followup_date: "",
+    fees_amount: "",
+    amount_paid: "",
+    followup_date: "",
     notes: "",
   });
 
   const handleSave = async () => {
-  // Patient Name Validation
-  if (!form.patient_name.trim()) {
-    alert("Please enter Patient Name");
-    return;
-  }
+    if (saving) return;
 
-  if (!/^[A-Za-z ]+$/.test(form.patient_name.trim())) {
-    alert("Patient name should contain only letters");
-    return;
-  }
+    setSaving(true);
 
-  // Mobile Validation
-  if (!/^[6-9]\d{9}$/.test(form.mobile_number)) {
-    alert("Please enter a valid 10-digit mobile number");
-    return;
-  }
+    // Patient Name Validation
+    if (!form.patient_name.trim()) {
+      alert("Please enter Patient Name");
+      setSaving(false);
+      return;
+    }
 
-  
+    if (!/^[A-Za-z ]+$/.test(form.patient_name.trim())) {
+      alert("Patient name should contain only letters");
+      setSaving(false);
+      return;
+    }
 
-  const today = new Date()
-    .toISOString()
-    .split("T")[0];
+    // Mobile Validation
+    if (!/^[6-9]\d{9}$/.test(form.mobile_number)) {
+      alert("Please enter a valid 10-digit mobile number");
+      setSaving(false);
+      return;
+    }
 
-  // Block Today & Past Dates
-  
+    if (
+      Number(form.amount_paid || 0) >
+      Number(form.fees_amount || 0)
+    ) {
+      alert(
+        "Amount Paid cannot be greater than Consultation Fee"
+      );
+      setSaving(false);
+      return;
+    }
 
-  // Duplicate Patient Check
-  const { data: existing } = await supabase
-    .from("patient_followups")
-    .select("id")
-    .eq("mobile_number", form.mobile_number)
-    .limit(1);
+    const today = new Date()
+      .toISOString()
+      .split("T")[0];
 
-  if (existing && existing.length > 0) {
-    alert(
-      "Patient already exists. Please search the patient and use New Visit."
-    );
-    return;
-  }
+    // Duplicate Patient Check
+    const { data: existing } = await supabase
+      .from("patient_followups")
+      .select("id")
+      .eq("mobile_number", form.mobile_number)
+      .limit(1);
 
-  // Save Patient
-  const { error } = await supabase
-    .from("patient_followups")
-    .insert([
-      {
-        patient_name: form.patient_name.trim(),
-        mobile_number: form.mobile_number,
-        diagnosis: form.diagnosis,
-        prescription: form.prescription,
-        followup_date: today,
-        notes: form.notes,
-        visit_date: today,
-        status: "Pending",
-        followup_done: false,
-      },
-    ]);
+    if (existing && existing.length > 0) {
+      alert(
+        "Patient already exists. Please search the patient and use New Visit."
+      );
+      setSaving(false);
+      return;
+    }
 
-  if (error) {
-    console.error(error);
-    alert(JSON.stringify(error));
-    return;
-  }
+    // Save Patient
+    const { error } = await supabase
+      .from("patient_followups")
+      .insert([
+        {
+          patient_name: form.patient_name.trim(),
+          mobile_number: form.mobile_number,
+          diagnosis: form.diagnosis,
+          prescription: form.prescription,
 
-  alert("Patient saved successfully");
+          fees_amount: Number(form.fees_amount || 0),
+          amount_paid: Number(form.amount_paid || 0),
+          due_amount:
+            Number(form.fees_amount || 0) -
+            Number(form.amount_paid || 0),
 
-  setForm({
-    patient_name: "",
-    mobile_number: "",
-    diagnosis: "",
-    prescription: "",
-    followup_date: today,
-    notes: "",
-  });
-};
+          followup_date: today,
+          notes: form.notes,
+          visit_date: today,
+          status: "Pending",
+          followup_done: false,
+        },
+      ]);
+
+    if (error) {
+      console.error(error);
+      alert(JSON.stringify(error));
+      setSaving(false);
+      return;
+    }
+
+    alert("Patient saved successfully");
+
+    setForm({
+      patient_name: "",
+      mobile_number: "",
+      diagnosis: "",
+      prescription: "",
+      fees_amount: "",
+      amount_paid: "",
+      followup_date: today,
+      notes: "",
+    });
+
+    setSaving(false);
+  };
+
   return (
     <main className="max-w-lg mx-auto min-h-screen bg-gray-50 p-4">
-
       <div className="mb-6">
         <Link
           href="/"
@@ -102,7 +132,6 @@ export default function NewPatientPage() {
       </div>
 
       <div className="bg-white rounded-2xl border shadow-sm p-5">
-
         <h1 className="text-2xl font-bold mb-1">
           Add Patient
         </h1>
@@ -112,7 +141,6 @@ export default function NewPatientPage() {
         </p>
 
         <div className="space-y-4">
-
           <input
             className="w-full border border-gray-300 rounded-xl p-3"
             placeholder="Patient Name"
@@ -165,12 +193,50 @@ export default function NewPatientPage() {
               })
             }
           />
+
           <input
-  type="date"
-  value={new Date().toISOString().split("T")[0]}
-  readOnly
-  className="w-full border border-gray-300 rounded-xl p-3 bg-gray-100"
-/>
+            type="number"
+            className="w-full border border-gray-300 rounded-xl p-3"
+            placeholder="Consultation Fee"
+            value={form.fees_amount}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                fees_amount: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="number"
+            className="w-full border border-gray-300 rounded-xl p-3"
+            placeholder="Amount Paid"
+            value={form.amount_paid}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                amount_paid: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="number"
+            readOnly
+            className="w-full border border-gray-300 rounded-xl p-3 bg-gray-100"
+            placeholder="Due Amount"
+            value={
+              Number(form.fees_amount || 0) -
+              Number(form.amount_paid || 0)
+            }
+          />
+
+          <input
+            type="date"
+            value={new Date().toISOString().split("T")[0]}
+            readOnly
+            className="w-full border border-gray-300 rounded-xl p-3 bg-gray-100"
+          />
 
           <textarea
             rows={3}
@@ -187,13 +253,16 @@ export default function NewPatientPage() {
 
           <button
             onClick={handleSave}
-            className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium"
+            disabled={saving}
+            className={`w-full text-white py-3 rounded-xl font-medium ${
+              saving
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600"
+            }`}
           >
-            Save Patient
+            {saving ? "Saving..." : "Save Patient"}
           </button>
-
         </div>
-
       </div>
     </main>
   );

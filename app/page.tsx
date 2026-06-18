@@ -13,6 +13,7 @@ export default function Home() {
   const [totalPatients, setTotalPatients] = useState(0);
   const [todayFollowups, setTodayFollowups] = useState(0);
   const [completedToday, setCompletedToday] = useState(0);
+  const [totalDueAmount, setTotalDueAmount] = useState(0);
 
   const [searchText, setSearchText] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -50,6 +51,17 @@ export default function Home() {
       .eq("followup_done", true);
 
     setCompletedToday(completed?.length || 0);
+    const { data: dueData } = await supabase
+  .from("patient_followups")
+  .select("due_amount");
+
+const totalDue =
+  dueData?.reduce(
+    (sum, item) => sum + Number(item.due_amount || 0),
+    0
+  ) || 0;
+
+setTotalDueAmount(totalDue);
   };
 
   const handleSearch = async () => {
@@ -225,7 +237,7 @@ export default function Home() {
 
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-5">
+      <div className="grid grid-cols-2 gap-4 mb-5">
 
         <div className="bg-white rounded-2xl p-4 text-center border shadow-sm">
           <p className="text-xs text-gray-500">
@@ -253,7 +265,15 @@ export default function Home() {
             {completedToday}
           </h2>
         </div>
+<div className="bg-white rounded-2xl p-4 text-center border shadow-sm">
+  <p className="text-xs text-gray-500">
+    Due Amount
+  </p>
 
+  <h2 className="text-xl font-bold text-red-600">
+    ₹{totalDueAmount}
+  </h2>
+</div>
       </div>
 
       {results.length > 0 && (

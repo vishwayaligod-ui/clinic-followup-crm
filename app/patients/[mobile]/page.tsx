@@ -234,6 +234,35 @@ Thank you.`
                 <p className="mt-1">
                   {visit.visit_date || "-"}
                 </p>
+                <div>
+  <p className="text-indigo-600 font-semibold text-sm">
+    💰 Consultation Fee
+  </p>
+
+  <p className="mt-1">
+    ₹ {visit.fees_amount ?? 0}
+  </p>
+</div>
+
+<div>
+  <p className="text-green-700 font-semibold text-sm">
+    💵 Amount Paid
+  </p>
+
+  <p className="mt-1">
+    ₹ {visit.amount_paid ?? 0}
+  </p>
+</div>
+
+<div>
+  <p className="text-red-600 font-semibold text-sm">
+    ⚠️ Due Amount
+  </p>
+
+  <p className="mt-1 font-semibold">
+    ₹ {visit.due_amount ?? 0}
+  </p>
+</div>
               </div>
 {index === 0 && (
   <div>

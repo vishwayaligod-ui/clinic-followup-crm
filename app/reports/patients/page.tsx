@@ -30,34 +30,55 @@ export default function PatientsReportPage() {
     const patientMap = new Map();
 
     data?.forEach((item) => {
-      if (!patientMap.has(item.mobile_number)) {
-        patientMap.set(item.mobile_number, {
-          patient_name: item.patient_name,
-          mobile_number: item.mobile_number,
-          total_visits: 1,
-          last_visit_date: item.created_at,
-        });
-      } else {
-        const patient = patientMap.get(item.mobile_number);
-        patient.total_visits += 1;
-      }
-    });
+  if (!patientMap.has(item.mobile_number)) {
+    patientMap.set(item.mobile_number, {
+  patient_name: item.patient_name,
+  mobile_number: item.mobile_number,
+  diagnosis: item.diagnosis || "",
+  prescription: item.prescription || "",
+
+  fees_amount: item.fees_amount || 0,
+  amount_paid: item.amount_paid || 0,
+  due_amount: item.due_amount || 0,
+
+  total_visits: 1,
+  last_visit_date: item.created_at,
+});
+  } else {
+    const patient = patientMap.get(item.mobile_number);
+    patient.total_visits += 1;
+  }
+});
 
     const rows = Array.from(patientMap.values());
 
     const csv = [
-      [
-        "Patient Name",
-        "Mobile Number",
-        "Total Visits",
-        "Last Visit Date",
-      ],
+     [
+  
+  "Patient Name",
+  "Mobile Number",
+  "Diagnosis",
+  "Prescription",
+  "Fees Amount",
+  "Amount Paid",
+  "Due Amount",
+  "Total Visits",
+  "Last Visit Date",
+],
+
       ...rows.map((row: any) => [
-        row.patient_name,
-        row.mobile_number,
-        row.total_visits,
-        new Date(row.last_visit_date).toLocaleDateString(),
-      ]),
+  row.patient_name,
+  row.mobile_number,
+  row.diagnosis,
+  row.prescription,
+
+  row.fees_amount,
+  row.amount_paid,
+  row.due_amount,
+
+  row.total_visits,
+  new Date(row.last_visit_date).toLocaleDateString(),
+]),
     ]
       .map((e) => e.join(","))
       .join("\n");
