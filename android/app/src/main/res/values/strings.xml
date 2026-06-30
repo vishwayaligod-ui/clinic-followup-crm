@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Yashodeep Clinic CRM</string>
+    <string name="title_activity_main">Yashodeep Clinic CRM</string>
+    <string name="package_name">com.yashodeep.cliniccrm</string>
+    <string name="custom_url_scheme">com.yashodeep.cliniccrm</string>
+</resources>
