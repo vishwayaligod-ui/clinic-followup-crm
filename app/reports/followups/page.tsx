@@ -31,12 +31,22 @@ export default function FollowupReportPage() {
       [
         "Patient Name",
         "Mobile Number",
+        "Age",
+        "Sex",
+        "Consultation Fee",
+        "Amount Paid",
+        "Due Amount",
         "Followup Date",
         "Status",
       ],
       ...(data || []).map((row) => [
         row.patient_name,
         row.mobile_number,
+        row.age ?? "",
+        row.sex ?? "",
+        row.fees_amount ?? 0,
+        row.amount_paid ?? 0,
+        row.due_amount ?? 0,
         row.followup_date || "",
         row.followup_done ? "Completed" : "Pending",
       ]),
@@ -65,7 +75,7 @@ export default function FollowupReportPage() {
   return (
     <main className="max-w-lg mx-auto p-6">
       <h1 className="text-xl font-bold">
-        Generating Followup Report...
+        Generating Follow-up Report...
       </h1>
     </main>
   );

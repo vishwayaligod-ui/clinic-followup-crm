@@ -111,37 +111,49 @@ Thank you.`
             </h1>
 
             <p className="text-blue-100">
-              📞 {patient.mobile_number}
-            </p>
+  📞 {patient.mobile_number}
+</p>
+
+<p className="text-blue-100 mt-1">
+  🎂 {patient.age ?? "-"} Years &nbsp;&nbsp; | &nbsp;&nbsp; 🚻 {patient.sex ?? "-"}
+</p>
           </div>
 
         </div>
 
         <div className="mt-5 flex gap-3">
 
-          <div className="bg-white/20 rounded-xl px-4 py-2">
-            <p className="text-xs text-blue-100">
-              Total Visits
-            </p>
+  <div className="bg-white/20 rounded-xl px-4 py-2 flex-1">
+    <p className="text-xs text-blue-100">
+      Total Visits
+    </p>
 
-            <p className="font-bold text-lg">
-              {history.length}
-            </p>
-          </div>
+    <p className="font-bold text-lg">
+      {history.length}
+    </p>
+  </div>
 
-          <div className="bg-white/20 rounded-xl px-4 py-2">
-            <p className="text-xs text-blue-100">
-              Last Visit
-            </p>
+  <div className="bg-white/20 rounded-xl px-4 py-2 flex-1">
+    <p className="text-xs text-blue-100">
+      Last Visit
+    </p>
 
-            <p className="font-bold text-sm">
-              {new Date(
-                patient.created_at
-              ).toLocaleDateString()}
-            </p>
-          </div>
+    <p className="font-bold text-sm">
+      {new Date(patient.created_at).toLocaleDateString()}
+    </p>
+  </div>
 
-        </div>
+</div>
+
+<div className="mt-3 bg-white/20 rounded-xl px-4 py-3">
+  <p className="text-xs text-blue-100">
+    Outstanding Due
+  </p>
+
+  <p className="text-2xl font-bold">
+    ₹ {patient.due_amount ?? 0}
+  </p>
+</div>
 
       </div>
 

@@ -16,6 +16,8 @@ export default function NewVisitPage() {
   const [loading, setLoading] = useState(true);
 
   const [patientName, setPatientName] = useState("");
+  const [age, setAge] = useState("");
+const [sex, setSex] = useState("");
 
   const [form, setForm] = useState({
     diagnosis: "",
@@ -52,8 +54,11 @@ export default function NewVisitPage() {
 
     const latestVisit = data[0];
 
-    setPatientName(latestVisit.patient_name);
-    setLoading(false);
+setPatientName(latestVisit.patient_name);
+setAge(latestVisit.age?.toString() || "");
+setSex(latestVisit.sex || "");
+
+setLoading(false);
   };
 
   const handleSave = async () => {
@@ -87,6 +92,8 @@ export default function NewVisitPage() {
         {
           patient_name: patientName,
           mobile_number: mobile,
+           age: Number(age),
+    sex: sex,
           diagnosis: form.diagnosis,
           prescription: form.prescription,
           followup_date: form.followup_date,
@@ -147,6 +154,21 @@ export default function NewVisitPage() {
             disabled
             className="w-full border rounded-xl p-3 bg-gray-100"
           />
+          <div className="grid grid-cols-2 gap-4">
+
+  <input
+    value={age ? `${age} Years` : "-"}
+    disabled
+    className="w-full border rounded-xl p-3 bg-gray-100"
+  />
+
+  <input
+    value={sex || "-"}
+    disabled
+    className="w-full border rounded-xl p-3 bg-gray-100"
+  />
+
+</div>
 
           <textarea
             rows={3}

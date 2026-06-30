@@ -34,13 +34,10 @@ export default function PatientsReportPage() {
     patientMap.set(item.mobile_number, {
   patient_name: item.patient_name,
   mobile_number: item.mobile_number,
+  age: item.age || "",
+  sex: item.sex || "",
   diagnosis: item.diagnosis || "",
   prescription: item.prescription || "",
-
-  fees_amount: item.fees_amount || 0,
-  amount_paid: item.amount_paid || 0,
-  due_amount: item.due_amount || 0,
-
   total_visits: 1,
   last_visit_date: item.created_at,
 });
@@ -55,27 +52,25 @@ export default function PatientsReportPage() {
     const csv = [
      [
   
+  [
   "Patient Name",
   "Mobile Number",
+  "Age",
+  "Sex",
   "Diagnosis",
   "Prescription",
-  "Fees Amount",
-  "Amount Paid",
-  "Due Amount",
   "Total Visits",
   "Last Visit Date",
+],
 ],
 
       ...rows.map((row: any) => [
   row.patient_name,
   row.mobile_number,
+  row.age,
+  row.sex,
   row.diagnosis,
   row.prescription,
-
-  row.fees_amount,
-  row.amount_paid,
-  row.due_amount,
-
   row.total_visits,
   new Date(row.last_visit_date).toLocaleDateString(),
 ]),

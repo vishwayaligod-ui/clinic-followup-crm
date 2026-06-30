@@ -8,16 +8,17 @@ export default function NewPatientPage() {
   const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
-    patient_name: "",
-    mobile_number: "",
-    diagnosis: "",
-    prescription: "",
-    fees_amount: "",
-    amount_paid: "",
-    followup_date: "",
-    notes: "",
-  });
-
+  patient_name: "",
+  mobile_number: "",
+  age: "",
+  sex: "",
+  diagnosis: "",
+  prescription: "",
+  fees_amount: "",
+  amount_paid: "",
+  followup_date: "",
+  notes: "",
+});
   const handleSave = async () => {
     if (saving) return;
 
@@ -35,6 +36,18 @@ export default function NewPatientPage() {
       setSaving(false);
       return;
     }
+    //age and sex
+    if (!form.age) {
+  alert("Please enter Age");
+  setSaving(false);
+  return;
+}
+
+if (!form.sex) {
+  alert("Please select Sex");
+  setSaving(false);
+  return;
+}
 
     // Mobile Validation
     if (!/^[6-9]\d{9}$/.test(form.mobile_number)) {
@@ -80,6 +93,8 @@ export default function NewPatientPage() {
         {
           patient_name: form.patient_name.trim(),
           mobile_number: form.mobile_number,
+          age: Number(form.age || 0),
+sex: form.sex,
           diagnosis: form.diagnosis,
           prescription: form.prescription,
 
@@ -109,6 +124,8 @@ export default function NewPatientPage() {
     setForm({
       patient_name: "",
       mobile_number: "",
+      age: "",
+sex: "",
       diagnosis: "",
       prescription: "",
       fees_amount: "",
@@ -167,7 +184,38 @@ export default function NewPatientPage() {
               })
             }
           />
+<div className="grid grid-cols-2 gap-4">
 
+  <input
+    type="number"
+    placeholder="Age"
+    className="border border-gray-300 rounded-xl p-3"
+    value={form.age}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        age: e.target.value,
+      })
+    }
+  />
+
+  <select
+    className="border border-gray-300 rounded-xl p-3"
+    value={form.sex}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        sex: e.target.value,
+      })
+    }
+  >
+    <option value="">Select Sex</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+  </select>
+
+</div>
           <textarea
             rows={3}
             className="w-full border border-gray-300 rounded-xl p-3"
